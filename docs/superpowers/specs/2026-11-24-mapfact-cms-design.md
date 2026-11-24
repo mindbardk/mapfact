@@ -39,9 +39,9 @@ Design: canvas "Mapfact relaunch" (https://claude.ai/artifact/WPkuUmPh1cpFdnxCuL
 - Stak som quizme.now: SvelteKit 2, Svelte 5 runes, Tailwind 4, Drizzle ORM, zod, sharp, d3-geo, topojson, Vitest + Playwright, PGlite i e2e, Vercel (adapter-vercel, region fra1).
 - Hosting: Vercel-teamet "mindbardk's projects" (Pro, aktivt), samme team som quizme. Pro er påkrævet, fordi sitet er kommercielt (annoncer og salg).
 - Jespers Neon-konto er ved loftet → databasen er **ikke** Neon.
-- Repo: github.com/mindbardk/mapfact (offentligt). Lokalt: `/Users/jesper/Projekter/mapfact-app`. Det gamle Kirby-site ligger i `/Users/jesper/Projekter/mapfact` og kører videre på mindbard, indtil relanceringen.
+- Repo: github.com/mindbardk/mapfact (offentligt). Lokalt: `/Users/jesper/Projekter/mapfact`. Det gamle Kirby-site ligger i `/Users/jesper/Projekter/mapfact-old` og kører videre på mindbard, indtil relanceringen.
 - Domænet mapfact.com flyttes til Vercel ved lancering.
-- Eksisterende egne data: `/Users/jesper/Projekter/mapfact/data-arkiv/` (seriemordere 357 rækker, OL-data). De bruges som første rigtige kort.
+- Eksisterende egne data: `/Users/jesper/Projekter/mapfact-old/data-arkiv/` (seriemordere 357 rækker, OL-data). De bruges som første rigtige kort.
 
 ## 4. Tilgange
 
@@ -255,7 +255,7 @@ Byttes ud: `@neondatabase/serverless` → `postgres` (postgres-js) + `drizzle-or
 
 ## 14. Første indhold
 
-Importer fra `/Users/jesper/Projekter/mapfact/data-arkiv/` som de første datasæt og kort (artikler skrives på ny):
+Importer fra `/Users/jesper/Projekter/mapfact-old/data-arkiv/` som de første datasæt og kort (artikler skrives på ny):
 - `seriemordere/serialkillers.csv` → punktkort "Serial killers of the world".
 - `sport/olympicmedals_pr_land.csv` → SVG-kort på `world`. Data bruger IOC-koder og historiske lande (Sovjetunionen, Østtyskland, Tjekkoslovakiet, Australasia, "Mixed team"): de vises i datatabellen, men ikke på kortet.
 - `sport/olympicgold_*.csv` → punktkort.
