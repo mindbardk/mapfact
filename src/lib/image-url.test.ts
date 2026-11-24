@@ -9,7 +9,9 @@ test.each([
 	['5.gif', null],
 	['5.webp.png', null],
 	['05.png', null],
-	['', null]
+	['', null],
+	['2147483647.png', { id: 2147483647, ext: 'png' }],
+	['2147483648.png', null]
 ])('parseImageFile(%s)', (file, expected) => {
 	expect(parseImageFile(file)).toEqual(expected);
 });

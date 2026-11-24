@@ -3,7 +3,9 @@ import { DEMO_MAP_SLUG } from '../../src/lib/server/seed.ts';
 import {
 	E2E_ARCHIVED_SLUG,
 	E2E_DRAFT_SLUG,
-	E2E_LONG_TITLE_SLUG
+	E2E_LONG_TITLE_SLUG,
+	E2E_NEXT_A_SLUG,
+	E2E_NEXT_B_SLUG
 } from './fixtures.ts';
 
 const DEMO = `/maps/${DEMO_MAP_SLUG}`;
@@ -78,16 +80,23 @@ test('"Next map" linker til et andet udgivet kort', async ({ page }) => {
 test('kladder og ukendte slugs giver 404, arkiverede kort vises', async ({ request }) => {
 	expect((await request.get(`/maps/${E2E_DRAFT_SLUG}`)).status()).toBe(404);
 	expect((await request.get('/maps/does-not-exist')).status()).toBe(404);
+	// Review I2: skrald i sluggen giver 404, ikke 500.
+	expect((await request.get('/maps/%00')).status()).toBe(404);
+	expect((await request.get('/maps/Not_A_Slug!')).status()).toBe(404);
 	expect((await request.get(`/maps/${E2E_ARCHIVED_SLUG}`)).status()).toBe(200);
 });
 
 test('forkerte billed-URL\'er giver 404', async ({ page, request }) => {
-	for (const path of ['/img/abc.webp', '/img/0.webp', '/img/5.gif']) {
+	// Review I1: id'er over int4 må ikke give 500.
+	for (const path of ['/img/abc.webp', '/img/0.webp', '/img/5.gif', '/img/2147483648.png', '/img/9999999999.webp']) {
 		expect((await request.get(path)).status(), path).toBe(404);
 	}
 	await page.goto(DEMO);
 	const src = await page.locator('[data-ref="map-fallback"]').getAttribute('src');
-	expect((await request.get(src!)).headers()['cache-control']).toContain('immutable');
+	const image = await request.get(src!);
+	expect(image.headers()['cache-control']).toContain('immutable');
+	// Review I3: billedet skal også caches på Vercels CDN, ikke kun i browseren.
+	expect(image.headers()['vercel-cdn-cache-control']).toBe('max-age=31536000, immutable');
 	expect((await request.get(src!.replace('.png', '.webp'))).status()).toBe(404);
 });
 
@@ -116,4 +125,16 @@ test.describe('mobil (360 px)', () => {
 			expect(await page.evaluate(() => document.documentElement.scrollWidth), slug).toBeLessThanOrEqual(360);
 		}
 	});
+});
+
+// Review C3: kortscenen skal skifte kort ved klientnavigation til et andet kort.
+test('"Next map" skifter også kortscenens billede', async ({ page }) => {
+	await page.goto(`/maps/${E2E_NEXT_A_SLUG}`);
+	const stage = page.locator('[data-ref="map-stage"]');
+	const before = await stage.locator('[data-ref="map-static"]').getAttribute('src');
+	await page.locator('[data-ref="next-map"] a').click();
+	await expect(page).toHaveURL(new RegExp(`/maps/${E2E_NEXT_B_SLUG}$`));
+	await expect(stage.locator('[data-ref="map-static"]')).toHaveCount(1);
+	const after = await stage.locator('[data-ref="map-static"]').getAttribute('src');
+	expect(after).not.toBe(before);
 });

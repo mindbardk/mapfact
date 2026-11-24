@@ -31,7 +31,10 @@
 	<p class="max-w-[380px] shrink-0 font-serif text-[19px] leading-[1.45] text-sub">{map.dek}</p>
 </div>
 
-<MapStage {map} />
+<!-- key: SvelteKit genbruger siden ved navigation til et andet kort; scenen skal starte forfra. -->
+{#key map.id}
+	<MapStage {map} />
+{/key}
 
 <MapToolbar
 	no={map.no}

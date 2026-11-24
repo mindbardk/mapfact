@@ -1,5 +1,6 @@
 import type { PgDatabase, PgQueryResultHKT } from 'drizzle-orm/pg-core';
 import * as schema from './schema';
+import { resolveDbTarget } from './target';
 
 /**
  * Fælles basistype for postgres-js og PGlite. En union af de to driver-typer
@@ -8,9 +9,8 @@ import * as schema from './schema';
 export type Db = PgDatabase<PgQueryResultHKT, typeof schema>;
 
 // Supabase via DATABASE_URL (transaction pooler) på Vercel. Lokalt og i e2e
-// bruges PGlite, når PGLITE_DIR er sat; den vinder over DATABASE_URL, så en
-// testkørsel aldrig kan ramme Supabase. Der er ingen stille fallback: mangler
-// begge, fejler første query højlydt.
+// bruges PGlite via PGLITE_DIR. Er begge eller ingen sat, fejler første query
+// højlydt (se target.ts).
 // Initialiseres lazy ved første query: SvelteKits build-analyse importerer
 // servermoduler, og PGlite tåler ikke at blive åbnet af to processer.
 let dbPromise: Promise<Db> | null = null;
@@ -21,21 +21,21 @@ let dbPromise: Promise<Db> | null = null;
 const pgliteAllowed = typeof import.meta.env === 'undefined' || !import.meta.env.PROD;
 
 async function createDb(): Promise<Db> {
-	if (pgliteAllowed && process.env.PGLITE_DIR) {
+	const target = resolveDbTarget(process.env, pgliteAllowed);
+	// `pgliteAllowed &&` står her, så Vite kan fjerne grenen og PGlite-importen i prod-buildet.
+	if (pgliteAllowed && target.kind === 'pglite') {
 		const { drizzle } = await import('drizzle-orm/pglite');
-		return drizzle(process.env.PGLITE_DIR, { schema }) as unknown as Db;
-	}
-	const databaseUrl = process.env.DATABASE_URL;
-	if (!databaseUrl) {
-		throw new Error('DATABASE_URL is not set and PGLITE_DIR is not set (see .env.example)');
+		return drizzle(target.dir, { schema }) as unknown as Db;
 	}
 	const [{ drizzle }, { default: postgres }] = await Promise.all([
 		import('drizzle-orm/postgres-js'),
 		import('postgres')
 	]);
-	// prepare: false er påkrævet bag Supabases transaction pooler.
-	// max: 1, fordi hver serverless-instans kun behandler ét kald ad gangen.
-	return drizzle(postgres(databaseUrl, { prepare: false, max: 1 }), { schema }) as unknown as Db;
+	// prepare: false er påkrævet bag Supabases transaction pooler. Vercel Fluid
+	// compute kører flere kald i samme instans, så puljen har plads til nogle få
+	// samtidige forbindelser; pooleren selv holder det samlede antal nede.
+	const client = postgres(target.url, { prepare: false, max: 5, idle_timeout: 20, connect_timeout: 10 });
+	return drizzle(client, { schema }) as unknown as Db;
 }
 
 export function getDb(): Promise<Db> {

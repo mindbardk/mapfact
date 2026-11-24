@@ -14,6 +14,8 @@ export const GET: RequestHandler = async ({ params }) => {
 		headers: {
 			'content-type': image.mime,
 			'cache-control': 'public, max-age=31536000, immutable',
+			// Vercels CDN cacher funktionssvar efter denne header, ikke efter max-age alene.
+			'vercel-cdn-cache-control': 'max-age=31536000, immutable',
 			'x-content-type-options': 'nosniff'
 		}
 	});

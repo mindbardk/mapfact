@@ -1,4 +1,5 @@
 import { defineConfig } from 'drizzle-kit';
+import { resolveDbTarget } from './src/lib/server/db/target.ts';
 
 // Samme regel som src/lib/server/db: PGlite, når PGLITE_DIR er sat, ellers
 // Postgres. Migrationer kører mod session pooleren (DATABASE_URL_UNPOOLED),
@@ -9,16 +10,17 @@ try {
 	// Ingen .env: miljøet leverer selv variablerne (Vercel).
 }
 
-const pgliteDir = process.env.PGLITE_DIR;
-const url = process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL;
-if (!pgliteDir && !url) throw new Error('DATABASE_URL er ikke sat (se .env.example)');
+const target = resolveDbTarget(
+	{ ...process.env, DATABASE_URL: process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL },
+	true
+);
 
 export default defineConfig({
 	schema: './src/lib/server/db/schema.ts',
 	dialect: 'postgresql',
-	...(pgliteDir
-		? { driver: 'pglite', dbCredentials: { url: pgliteDir } }
-		: { dbCredentials: { url: url! } }),
+	...(target.kind === 'pglite'
+		? { driver: 'pglite', dbCredentials: { url: target.dir } }
+		: { dbCredentials: { url: target.url } }),
 	verbose: true,
 	strict: true
 });
