@@ -1,8 +1,11 @@
-import type { PgliteDatabase } from 'drizzle-orm/pglite';
-import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
+import type { PgDatabase, PgQueryResultHKT } from 'drizzle-orm/pg-core';
 import * as schema from './schema';
 
-export type Db = PostgresJsDatabase<typeof schema> | PgliteDatabase<typeof schema>;
+/**
+ * Fælles basistype for postgres-js og PGlite. En union af de to driver-typer
+ * gør overloads som `.returning({...})` og `transaction()` uforenelige for TS.
+ */
+export type Db = PgDatabase<PgQueryResultHKT, typeof schema>;
 
 // Supabase via DATABASE_URL (transaction pooler) på Vercel. Lokalt og i e2e
 // bruges PGlite, når PGLITE_DIR er sat; den vinder over DATABASE_URL, så en
@@ -20,7 +23,7 @@ const pgliteAllowed = typeof import.meta.env === 'undefined' || !import.meta.env
 async function createDb(): Promise<Db> {
 	if (pgliteAllowed && process.env.PGLITE_DIR) {
 		const { drizzle } = await import('drizzle-orm/pglite');
-		return drizzle(process.env.PGLITE_DIR, { schema });
+		return drizzle(process.env.PGLITE_DIR, { schema }) as unknown as Db;
 	}
 	const databaseUrl = process.env.DATABASE_URL;
 	if (!databaseUrl) {
@@ -32,7 +35,7 @@ async function createDb(): Promise<Db> {
 	]);
 	// prepare: false er påkrævet bag Supabases transaction pooler.
 	// max: 1, fordi hver serverless-instans kun behandler ét kald ad gangen.
-	return drizzle(postgres(databaseUrl, { prepare: false, max: 1 }), { schema });
+	return drizzle(postgres(databaseUrl, { prepare: false, max: 1 }), { schema }) as unknown as Db;
 }
 
 export function getDb(): Promise<Db> {

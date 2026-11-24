@@ -46,7 +46,7 @@ export async function storeImage(
 			caption: opts.caption ?? null,
 			credit: opts.credit ?? null
 		})
-		.returning();
+		.returning({ id: images.id });
 	return { id: row.id, ext: opts.format, width: encoded.info.width, height: encoded.info.height, alt };
 }
 
