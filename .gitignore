@@ -1,0 +1,33 @@
+node_modules
+
+# Output
+.output
+.vercel
+/.svelte-kit
+/build
+
+# OS
+.DS_Store
+
+# Env
+.env
+.env.*
+!.env.example
+
+# Vite
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+
+# Lokal PGlite-database (dev og e2e)
+.data/
+
+# Claude Code og plugins: lokale indstillinger og hukommelse
+.claude/
+.remember/
+
+# Superpowers-arbejdsmapper (planledger, mockups)
+.superpowers/
+
+# Playwright
+/playwright-report/
+/test-results/
