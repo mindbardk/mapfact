@@ -542,7 +542,7 @@ Tilpasninger ved kopieringen:
   - Tilføj `https://<preview-origin>/admin/login/google/callback` til et Google OAuth-klient-id. quizmes klient kan genbruges, hvis den har plads til flere redirect-URI'er.
   - `vercel link` til teamet "mindbardk's projects" med projektnavnet `mapfact`. Forbind GitHub-repoet `mindbardk/mapfact`.
   - Sæt env-variabler for Preview og Production med `vercel env add`: `DATABASE_URL`, `DATABASE_URL_UNPOOLED`, `SESSION_SECRET` (`openssl rand -hex 32`), `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `ADMIN_OWNER_EMAILS`, `ADMIN_LOGIN_ORIGIN` og `CRON_SECRET`.
-- [ ] **Step 5: Seed Supabase.** Kør `DATABASE_URL=<session pooler-url> npx drizzle-kit migrate` og derefter `DATABASE_URL=<session pooler-url> npm run db:seed`. Forventet: demo-kortet oprettes.
+- [ ] **Step 5: Seed Supabase.** Kør `PGLITE_DIR= DATABASE_URL=<session pooler-url> npx drizzle-kit migrate` og derefter `PGLITE_DIR= DATABASE_URL=<session pooler-url> npm run db:seed`. `PGLITE_DIR=` er nødvendig, fordi `.env` sætter den, og appen nægter at køre med begge. Forventet: demo-kortet oprettes.
 - [ ] **Step 6: Fuld verifikation.** Kør `npm run check && npm test && npm run build`. Alt skal være grønt.
 - [ ] **Step 7: Push og preview.** Kør `git push -u origin main`. Brug en feature-branch, hvis Jesper foretrækker det. Vent på Vercel-builden.
 - [ ] **Step 8: Verificér previewen.**
