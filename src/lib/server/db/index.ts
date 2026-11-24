@@ -27,6 +27,8 @@ async function createDb(): Promise<Db> {
 		const { drizzle } = await import('drizzle-orm/pglite');
 		return drizzle(target.dir, { schema }) as unknown as Db;
 	}
+	// Kan ikke ske (resolveDbTarget giver kun pglite, når det er tilladt), men indsnævrer typen.
+	if (target.kind !== 'postgres') throw new Error('PGlite is not available in this build');
 	const [{ drizzle }, { default: postgres }] = await Promise.all([
 		import('drizzle-orm/postgres-js'),
 		import('postgres')
