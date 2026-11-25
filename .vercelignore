@@ -1,0 +1,12 @@
+.env
+.env.*
+!.env.example
+.data
+.remember
+.superpowers
+.claude
+node_modules
+.svelte-kit
+build
+test-results
+playwright-report
