@@ -4,7 +4,7 @@ Engelsksproget site, hvor hver side er ét kort med en artikel under. Kort kan e
 
 - Spec: `docs/superpowers/specs/2026-11-24-mapfact-cms-design.md`. Planer: `docs/superpowers/plans/`.
 - Design (bindende for tokens, mål og komponenter): "Mapfact relaunch – designoverlevering" (https://claude.ai/artifact/5TRvcUUNodqzAYLi1yR3v4) og canvasset "Mapfact relaunch" (https://claude.ai/artifact/WPkuUmPh1cpFdnxCuLfKeQ).
-- Stak: SvelteKit 2, Svelte 5 runes, Tailwind 4, Drizzle (postgres-js mod Supabase, PGlite lokalt og i test), Vercel fra1.
+- Stak: SvelteKit 2, Svelte 5 runes, Tailwind 4, Drizzle (postgres-js mod Supabase, PGlite lokalt og i test), Vercel dub1 (samme AWS-region som Supabase, eu-west-1).
 
 ## Konventioner
 

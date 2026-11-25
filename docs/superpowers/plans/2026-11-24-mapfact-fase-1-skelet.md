@@ -4,7 +4,7 @@
 
 **Goal:** Et kørende SvelteKit-site på en Vercel-preview med designets tokens, header og footer, en server-renderet kortside (statisk kort + Markdown-artikel fra seed-data), billeder fra Postgres og Google-login til admin.
 
-**Architecture:** SvelteKit 2 på Vercel (fra1) med Drizzle mod Supabase Postgres via postgres-js (transaction pooler). Lokalt og i test kører databasen som PGlite. Offentlige sider caches på Vercels CDN med cache-tag, så en visning sjældent rammer databasen. Kortscenen server-renderes med fallback-billedet som LCP og skifter derefter til en dynamisk indlæst renderer bag et lille interface, som fase 2 og 3 udvider med SVG- og punktkort.
+**Architecture:** SvelteKit 2 på Vercel (dub1) med Drizzle mod Supabase Postgres via postgres-js (transaction pooler). Lokalt og i test kører databasen som PGlite. Offentlige sider caches på Vercels CDN med cache-tag, så en visning sjældent rammer databasen. Kortscenen server-renderes med fallback-billedet som LCP og skifter derefter til en dynamisk indlæst renderer bag et lille interface, som fase 2 og 3 udvider med SVG- og punktkort.
 
 **Tech Stack:** SvelteKit 2, Svelte 5 runes, Tailwind 4, Drizzle ORM 0.45 + drizzle-kit 0.31, postgres (postgres-js) 3, @electric-sql/pglite 0.5, zod 4, sharp 0.35, markdown-it 14 + markdown-it-container 4, @vercel/functions 3, Vitest 4, Playwright, adapter-vercel 6.
 
@@ -61,7 +61,7 @@
   - `vitest.config.ts` og `tsconfig.json`: uændrede.
   - `src/lib/server/env-stub.ts`: uændret.
   - `.npmrc`: uændret.
-  - `vercel.json`: `{"regions":["fra1"]}` alene. Cronen kommer i opgave 11.
+  - `vercel.json`: `{"regions":["dub1"]}` alene. Cronen kommer i opgave 11.
   - `.gitignore`: tilføj `.data/`, `.env`, `.vercel`, `test-results/` og `.DS_Store`.
 
 - [ ] **Step 3: Opret `playwright.config.ts`** som kopi af quizme med `PORT=5174`. Eksportér `E2E_SESSION_SECRET='e2e-session-secret'`, `E2E_OWNER_EMAIL='owner@e2e.test'`, `E2E_API_TOKEN='e2e-api-token'` og `E2E_CRON_SECRET='e2e-cron-secret'`. `webServer.env` sætter `PGLITE_DIR='./.data/e2e'`, `SESSION_SECRET`, `ADMIN_OWNER_EMAILS`, `ADMIN_API_TOKEN` og `CRON_SECRET` til disse værdier. `globalSetup` er `./tests/e2e/global-setup.ts` og oprettes i opgave 5.
@@ -538,7 +538,7 @@ Tilpasninger ved kopieringen:
 - [ ] **Step 2: Implementér routen.** Den kalder `isCronAuthorized` og afviser med 401, ellers kører den ``(await getDb()).execute(sql`select 1`)`` og returnerer `json({ ok: true })` med `cache-control: no-store`. Tilføj `"crons": [{ "path": "/api/cron/keepalive", "schedule": "0 6 * * *" }]` til `vercel.json`. Kør `npm run test:e2e -- cron`: PASS.
 - [ ] **Step 3: Commit:** `Drift: dagligt keepalive-ping til databasen`
 - [ ] **Step 4: Opsætning hos tjenesterne (Jesper, med hjælp; kræver login og hemmeligheder).**
-  - Opret Supabase-projektet "mapfact" i region eu-central-1 (Frankfurt) på free-planen. Notér transaction pooler-URL (port 6543) og session pooler-URL (port 5432).
+  - Opret Supabase-projektet "mapfact" i region eu-west-1 (Irland; free-planen tillod ikke Frankfurt) på free-planen. Notér transaction pooler-URL (port 6543) og session pooler-URL (port 5432).
   - Tilføj `https://<preview-origin>/admin/login/google/callback` til et Google OAuth-klient-id. quizmes klient kan genbruges, hvis den har plads til flere redirect-URI'er.
   - `vercel link` til teamet "mindbardk's projects" med projektnavnet `mapfact`. Forbind GitHub-repoet `mindbardk/mapfact`.
   - Sæt env-variabler for Preview og Production med `vercel env add`: `DATABASE_URL`, `DATABASE_URL_UNPOOLED`, `SESSION_SECRET` (`openssl rand -hex 32`), `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `ADMIN_OWNER_EMAILS`, `ADMIN_LOGIN_ORIGIN` og `CRON_SECRET`.

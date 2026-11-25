@@ -36,7 +36,7 @@ Design: canvas "Mapfact relaunch" (https://claude.ai/artifact/WPkuUmPh1cpFdnxCuL
 
 ## 3. Rammer
 
-- Stak som quizme.now: SvelteKit 2, Svelte 5 runes, Tailwind 4, Drizzle ORM, zod, sharp, d3-geo, topojson, Vitest + Playwright, PGlite i e2e, Vercel (adapter-vercel, region fra1).
+- Stak som quizme.now: SvelteKit 2, Svelte 5 runes, Tailwind 4, Drizzle ORM, zod, sharp, d3-geo, topojson, Vitest + Playwright, PGlite i e2e, Vercel (adapter-vercel, region dub1, ved siden af Supabase i eu-west-1).
 - Hosting: Vercel-teamet "mindbardk's projects" (Pro, aktivt), samme team som quizme. Pro er påkrævet, fordi sitet er kommercielt (annoncer og salg).
 - Jespers Neon-konto er ved loftet → databasen er **ikke** Neon.
 - Repo: github.com/mindbardk/mapfact (offentligt). Lokalt: `/Users/jesper/Projekter/mapfact`. Det gamle Kirby-site ligger i `/Users/jesper/Projekter/mapfact-old` og kører videre på mindbard, indtil relanceringen.
@@ -56,7 +56,7 @@ Design: canvas "Mapfact relaunch" (https://claude.ai/artifact/WPkuUmPh1cpFdnxCuL
 ## 5. Arkitektur
 
 ```
-Browser ──► Vercel CDN (cache, tag "public-pages") ──► SvelteKit (fra1) ──► Supabase Postgres (eu-central-1)
+Browser ──► Vercel CDN (cache, tag "public-pages") ──► SvelteKit (dub1) ──► Supabase Postgres (eu-west-1)
                                                     │
 Admin (/admin, Google-login) ── skriver ──► DB ── purge af cache-tag
 Vercel cron (dagligt) ── ping ──► DB  (holder Supabase vågen)
@@ -249,7 +249,7 @@ Kopieres og tilpasses (ingen delt pakke; min beslutning, da projekterne skal kun
 | `src/routes/embed/*` | Mønster for embed-siden |
 | `cloudflare-analytics.ts`, `traffic-sync.ts` | "Most viewed" og trafik i admin |
 | DB-opsætning med PGlite til e2e, Playwright-config | Test |
-| `vercel.json` (fra1, crons) | Drift |
+| `vercel.json` (dub1, crons) | Drift |
 
 Byttes ud: `@neondatabase/serverless` → `postgres` (postgres-js) + `drizzle-orm/postgres-js`.
 
